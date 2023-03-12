@@ -725,9 +725,19 @@ __kernel void profanity_score_matching(__global mp_number * const pInverse, __gl
 	__global const uchar * const hash = pInverse[id].d;
 	int score = 0;
 
-	for (int i = 0; i < 20; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		if (data1[i] > 0 && (hash[i] & data1[i]) == data2[i]) {
 			++score;
+		}else{
+			break;
+		}
+		
+	}
+	for (int i = 19; i > 10; --i) {
+		if (data1[i] > 0 && (hash[i] & data1[i]) == data2[i]) {
+			++score;
+		}else{
+			break;
 		}
 	}
 

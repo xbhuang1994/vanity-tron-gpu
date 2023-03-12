@@ -54,11 +54,6 @@ static void printResult(cl_ulong4 seed, cl_ulong round, result r, cl_uchar score
 
 	std::cout << mode.transformName();
 	std::cout << ": 0x" << strPublic << std::endl;
-
-	if((int) score >= 4){
-		std::cout << "Exiting program." << std::endl;
-		std::exit(0);
-	}
 }
 
 unsigned int getKernelExecutionTimeMicros(cl_event & e) {
