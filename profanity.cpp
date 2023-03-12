@@ -299,9 +299,12 @@ int main(int argc, char * * argv) {
 		} else {
 			// Create a program from the kernel source
 			std::cout << "  Compiling kernel..." << std::flush;
+			const std::string strSha256 = readFile("sha256.cl");
 			const std::string strKeccak = readFile("keccak.cl");
 			const std::string strVanity = readFile("profanity.cl");
-			const char * szKernels[] = { strKeccak.c_str(), strVanity.c_str() };
+			const char * szKernels[] = { 
+				strSha256.c_str(), 
+				strKeccak.c_str(), strVanity.c_str() };
 
 			clProgram = clCreateProgramWithSource(clContext, sizeof(szKernels) / sizeof(char *), szKernels, NULL, &errorCode);
 			if (printResult(clProgram, errorCode)) {

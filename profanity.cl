@@ -652,13 +652,23 @@ __kernel void profanity_iterate(__global mp_number * const pDeltaX, __global mp_
 	h.d[16] ^= 0x01; // length 64
 
 	sha3_keccakf(&h);
+	uint hash0[5] = {h.d[3],h.d[4],h.d[5],h.d[6],h.d[7]};
+	uchar *const hash0_uchar = hash0;
+	uchar torn_hash_split_uchar[20];
+	ethhash_to_tronsplithash(hash0_uchar, torn_hash_split_uchar);
+	uint *const torn_hash_split = torn_hash_split_uchar;
+	pInverse[id].d[0] = torn_hash_split[0];
+	pInverse[id].d[1] = torn_hash_split[1];
+	pInverse[id].d[2] = torn_hash_split[2];
+	pInverse[id].d[3] = torn_hash_split[3];
+	pInverse[id].d[4] = torn_hash_split[4];
 
 	// Save public address hash in pInverse, only used as interim storage until next cycle
-	pInverse[id].d[0] = h.d[3];
-	pInverse[id].d[1] = h.d[4];
-	pInverse[id].d[2] = h.d[5];
-	pInverse[id].d[3] = h.d[6];
-	pInverse[id].d[4] = h.d[7];
+	// pInverse[id].d[0] = h.d[3];
+	// pInverse[id].d[1] = h.d[4];
+	// pInverse[id].d[2] = h.d[5];
+	// pInverse[id].d[3] = h.d[6];
+	// pInverse[id].d[4] = h.d[7];
 }
 
 void profanity_result_update(const size_t id, __global const uchar * const hash, __global result * const pResult, const uchar score, const uchar scoreMax) {
