@@ -151,13 +151,6 @@ void split_tron_to_20(uchar *tron, uchar *output) {
     }
   }
 }
-void reverseUcharArray(unsigned char *arr, const int size) {
-  for (int i = 0; i < size / 2; ++i) {
-    const unsigned char temp = arr[i];
-    arr[i] = arr[size - i - 1];
-    arr[size - i - 1] = temp;
-  }
-}
 void ethhash_to_tronsplithash(const uchar *ethhash, uchar *tornhash) {
   uchar hash0[21];
   uchar hash1[32];
@@ -178,6 +171,25 @@ void ethhash_to_tronsplithash(const uchar *ethhash, uchar *tornhash) {
   hash3[24] = hash2[3];
   split_tron_to_20(hash3, tornhash);
 }
+
+void ethhash_to_tronhash(const uchar *ethhash, uchar *tornhash) {
+  uchar hash0[21];
+  uchar hash1[32];
+  uchar hash2[32];
+  for (uint i = 0; i < 20; i++) {
+    hash0[i + 1] = ethhash[i];
+  }
+  hash0[0] = 65; // add 41
+  sha256_to_uchar(sizeof(hash0), hash0, hash1);
+  sha256_to_uchar(sizeof(hash1), hash1, hash2);
+  for (uint i = 0; i < 21; i++) {
+    tornhash[i] = hash0[i];
+  }
+  tornhash[21] = hash2[0];
+  tornhash[22] = hash2[1];
+  tornhash[23] = hash2[2];
+  tornhash[24] = hash2[3];
+}
 void ucharArrayToHexStr(const uchar *input, size_t length, char *output) {
   const char HEX_CHARS[] = "0123456789abcdef";
 
@@ -188,18 +200,98 @@ void ucharArrayToHexStr(const uchar *input, size_t length, char *output) {
   output[length * 2] = '\0';
   printf("hash : %s\n", output);
 }
+// 字符集
+const char alphabet[] =
+    "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+// 反转字节数组
+void reverseUcharArray(uchar *arr, const int size) {
+  for (int i = 0; i < size / 2; ++i) {
+    const uchar temp = arr[i];
+    arr[i] = arr[size - i - 1];
+    arr[size - i - 1] = temp;
+  }
+}
+
+void base58encode(const uchar *input, char *output, int input_len) {
+
+  // 分配内存
+  uint digits[32];
+
+  // 初始化
+  for (int i = 0; i < 32; i++) {
+    digits[i] = 0;
+  }
+
+  // 计算数字位数
+  int digit_count = 1;
+  for (int i = 0; i < input_len; i++) {
+    uint carry = input[i];
+    for (int j = 0; j < digit_count; j++) {
+      carry += digits[j] << 8;
+      digits[j] = carry % 58;
+      carry /= 58;
+    }
+    while (carry) {
+      digits[digit_count++] = carry % 58;
+      carry /= 58;
+    }
+  }
+
+  // 计算前导 0
+  int zero_count = 0;
+  while (zero_count < input_len && input[zero_count] == 0) {
+    zero_count++;
+  }
+
+  // 输出编码结果
+  int output_idx = 0;
+  output[output_idx++] = alphabet[digits[digit_count - 1]];
+  for (int i = digit_count - 2; i >= 0; i--) {
+    if (zero_count > 0) {
+      zero_count--;
+    } else {
+      output[output_idx++] = alphabet[digits[i]];
+    }
+  }
+  output[output_idx] = '\0';
+}
+
 kernel void sha256single_kernel(uint len, global uchar *key,
                                 global uchar *result) {
 
   // for (uint i = 0; i < len; i++) {
   //   printf("%u \n", key[i]);
   // }
-  ethhash_to_tronsplithash(key, result);
-  char str1[40];
-  ucharArrayToHexStr(key, 20, str1);
-  // reverseUcharArray(result, 20);
-  uint *a = result;
-  printf("%u %u %u %u %u\n", a[0], a[1], a[2], a[3], a[4]);
+  ethhash_to_tronhash(key, result);
+  char output[34];
+  base58encode(result, output, 25);
+  char torn_hash_split[20];
+  uint j = 0;
+	for (uint i = 0; i < 34; i++){
+		if(i<10 || i>=24){
+			torn_hash_split[j] = output[i];
+			j++;
+		}
+	}
+  uint* const torn_hash_uint = torn_hash_split;
+
+  char* const b = torn_hash_uint;
+
+  for (int i = 0; i < 20; i++) {
+    printf("%u \n", b[i]);
+  }
+  
+
+  // const uint* pv = result;
+  // for (uint j = 0; j < 7; j++) {
+  //   printf(" %u \n", pv[j]);
+  // }
+  // char str1[50];
+  // ucharArrayToHexStr(key, 25, result);
+  // // reverseUcharArray(result, 20);
+  // uint *a = result;
+  // printf("%u %u %u %u %u\n", a[0], a[1], a[2], a[3], a[4]);
   // printf("%s\n",str1);
   // for (uint i = 0; i < 6; i++) {
   //   printf("%u \n", a[i]);

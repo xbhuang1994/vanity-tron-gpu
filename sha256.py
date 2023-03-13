@@ -1,6 +1,7 @@
 import numpy as np
 import pyopencl as cl
 import hashlib
+import base58
 
 # 将字符串转换为byte字符串
 def str_to_bytes(s):
@@ -24,7 +25,7 @@ def sha256(s):
 # key_bytes = str_to_bytes(key_str)
 
 key_str = ''
-hex_str = '7e5d84f2dc1a1167fa188d25ba76ca1b73026656'
+hex_str = '803e198971635b6ea341efab3e7ca7f8baf06554'
 
 key_len = len(hex_str) / 2
 print(key_len, len(hex_str))
@@ -52,22 +53,28 @@ program = cl.Program(ctx, kernel).build()
 # 创建OpenCL缓冲区对象
 mf = cl.mem_flags
 key_buffer = cl.Buffer(ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=key_bytes)
-result_buffer = cl.Buffer(ctx, mf.WRITE_ONLY, 64)
+result_buffer = cl.Buffer(ctx, mf.WRITE_ONLY, 80)
 
 # 调用内核
 global_size = (1,)
 program.sha256single_kernel(queue, global_size, None, np.uint32(key_len), key_buffer, result_buffer)
 
 # 读取输出缓冲区中的数据
-result_data = np.empty(20, dtype=np.uint8)
+result_data = np.empty(25, dtype=np.uint8)
 cl.enqueue_copy(queue, result_data, result_buffer)
 
 # 将结果转换为字符串
 my_str = "".join([format(b, '02x') for b in result_data])
 # my_str = result_data.tobytes().decode('utf-8')
 
+
+hash_result = '41'+ hex_str.lower() + hash_value[0:8]
+
+
 # 打印结果
 print("Key:", key_str)
 print("Hex:" , hex_str)
-print("CPU:", '41'+ hex_str.lower() + hash_value[0:8])
+print("CPU:", hash_result)
 print("HAS:", my_str)
+encoded = base58.b58encode(bytes.fromhex(hash_result))
+print("CPU Base58:", encoded)

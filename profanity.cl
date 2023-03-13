@@ -654,14 +654,48 @@ __kernel void profanity_iterate(__global mp_number * const pDeltaX, __global mp_
 	sha3_keccakf(&h);
 	uint hash0[5] = {h.d[3],h.d[4],h.d[5],h.d[6],h.d[7]};
 	uchar *const hash0_uchar = hash0;
-	uchar torn_hash_split_uchar[20];
-	ethhash_to_tronsplithash(hash0_uchar, torn_hash_split_uchar);
-	uint *const torn_hash_split = torn_hash_split_uchar;
-	pInverse[id].d[0] = torn_hash_split[0];
-	pInverse[id].d[1] = torn_hash_split[1];
-	pInverse[id].d[2] = torn_hash_split[2];
-	pInverse[id].d[3] = torn_hash_split[3];
-	pInverse[id].d[4] = torn_hash_split[4];
+	uchar torn_hash[25];
+	ethhash_to_tronhash(hash0_uchar, torn_hash);
+	char torn_hash_address[34];
+ 	base58encode(torn_hash, torn_hash_address, 25);
+	char torn_hash_split[20];
+	uint j = 0;
+	for (uint i = 0; i < 34; i++){
+		if(i<10 || i>=24){
+			torn_hash_split[j] = torn_hash_address[i];
+			j++;
+		}
+	}
+	uint *const torn_hash_uint = torn_hash_split;
+	
+	pInverse[id].d[0] = torn_hash_uint[0];
+	pInverse[id].d[1] = torn_hash_uint[1];
+	pInverse[id].d[2] = torn_hash_uint[2];
+	pInverse[id].d[3] = torn_hash_uint[3];
+	pInverse[id].d[4] = torn_hash_uint[4];
+	// pInverse[id].d[5] = torn_hash_uint[5];
+	// pInverse[id].d[6] = torn_hash_uint[6];
+	// pInverse[id].d[7] = torn_hash_uint[7];
+	// pInverse[id].d[8] = torn_hash_uint[8];
+	
+	// pInverse[id].d[0] = 0;
+	// pInverse[id].d[1] = 0;
+	// pInverse[id].d[2] = 0;
+	// pInverse[id].d[3] = 0;
+	// pInverse[id].d[4] = 0;
+
+	// char* tempHash = pInverse[id].d;
+
+	// if (tempHash[1] == 90
+	// 	&&tempHash[2] ==68
+	// 	&&tempHash[3] ==122
+	// 	&&tempHash[4] ==85
+	// 	){
+	// 		char sdfsdfsd[25];
+	// 		ucharArrayToHexStr(hash0_uchar,20,sdfsdfsd);
+	// 		ucharArrayToHexStr(torn_hash,25,sdfsdfsd);
+	// 		printf("%u\n",pInverse[id].d[8]);
+	// 	}
 
 	// Save public address hash in pInverse, only used as interim storage until next cycle
 	// pInverse[id].d[0] = h.d[3];
@@ -722,7 +756,7 @@ __kernel void profanity_score_benchmark(__global mp_number * const pInverse, __g
 
 __kernel void profanity_score_matching(__global mp_number * const pInverse, __global result * const pResult, __constant const uchar * const data1, __constant const uchar * const data2, const uchar scoreMax) {
 	const size_t id = get_global_id(0);
-	__global const uchar * const hash = pInverse[id].d;
+	__global const char * const hash = pInverse[id].d;
 	int score = 0;
 
 	for (int i = 0; i < 10; ++i) {

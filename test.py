@@ -3,7 +3,7 @@
 
 # print(uint_value,hex_string)  # Output: 0x40d3f57b
 
-hex_str = '41ffd01b23c8d75ca029ce75bc4f2f9cdabbccdd' # 16进制字符串
+hex_str = '545a447ad8d300eb7fb8e65bb9e65810299e08a0' # 16进制字符串
 bys = bytes.fromhex(hex_str)
 for b in bys:
     print(hex(b))

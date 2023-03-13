@@ -27,6 +27,11 @@ static std::string::size_type hexValueNoException(char c) {
 	const std::string::size_type ret = hex.find(c);
 	return ret;
 }
+static std::string::size_type base58ValueNoException(char c) {
+	const std::string hex = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+	const std::string::size_type ret = hex.find(c);
+	return ret;
+}
 
 static std::string::size_type hexValue(char c) {
 	const std::string::size_type ret = hexValueNoException(c);
@@ -46,22 +51,26 @@ Mode Mode::matching(const std::string strHex) {
 	std::fill( r.data2, r.data2 + sizeof(r.data2), cl_uchar(0) );
 
 	auto index = 0;
-	
-	for( size_t i = 0; i < strHex.size(); i += 2 ) {
-		const auto indexHi = hexValueNoException(strHex[i]);
-		const auto indexLo = i + 1 < strHex.size() ? hexValueNoException(strHex[i+1]) : std::string::npos;
+	printf("Your size is: %d\n",  strHex.size());
+	for( size_t i = 0; i < strHex.size(); i += 1 ) {
+		// const auto indexHi = hexValueNoException(strHex[i]);
+		// const auto indexLo = i + 1 < strHex.size() ? hexValueNoException(strHex[i+1]) : std::string::npos;
+		
+		
+		// const auto valHi = (indexHi == std::string::npos) ? 0 : indexHi << 4;
+		// const auto valLo = (indexLo == std::string::npos) ? 0 : indexLo;
 
-		const auto valHi = (indexHi == std::string::npos) ? 0 : indexHi << 4;
-		const auto valLo = (indexLo == std::string::npos) ? 0 : indexLo;
+		// const auto maskHi = (indexHi == std::string::npos) ? 0 : 0xF << 4;
+		// const auto maskLo = (indexLo == std::string::npos) ? 0 : 0xF;
+		
+		const auto indexStr = base58ValueNoException(strHex[i]);
 
-		const auto maskHi = (indexHi == std::string::npos) ? 0 : 0xF << 4;
-		const auto maskLo = (indexLo == std::string::npos) ? 0 : 0xF;
-
-		r.data1[index] = maskHi | maskLo;
-		r.data2[index] = valHi | valLo;
-
+		r.data1[index] = indexStr < 58 ? 255 : 0;
+		r.data2[index] = (cl_uchar)strHex[i];
+		printf("mask %u val %u\n",r.data1[index],r.data2[index]);
 		++index;
 	}
+	
 
 	return r;
 }
