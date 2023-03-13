@@ -204,25 +204,10 @@ void ucharArrayToHexStr(const uchar *input, size_t length, char *output) {
 const char alphabet[] =
     "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
-// 反转字节数组
-void reverseUcharArray(uchar *arr, const int size) {
-  for (int i = 0; i < size / 2; ++i) {
-    const uchar temp = arr[i];
-    arr[i] = arr[size - i - 1];
-    arr[size - i - 1] = temp;
-  }
-}
-
 void base58encode(const uchar *input, char *output, int input_len) {
 
   // 分配内存
-  uint digits[32];
-
-  // 初始化
-  for (int i = 0; i < 32; i++) {
-    digits[i] = 0;
-  }
-
+  __private uint digits[32] = {0};
   // 计算数字位数
   int digit_count = 1;
   for (int i = 0; i < input_len; i++) {
