@@ -42,8 +42,8 @@ class Mode {
 		// Address, Contract, ...
 		std::string transformName() const;
 
-		cl_uchar data1[20];
-		cl_uchar data2[20];
+		cl_uchar data1[20 * 100];
+		cl_uchar data2[20 * 100];
 		cl_uchar score;
 };
 

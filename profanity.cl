@@ -710,7 +710,7 @@ void profanity_result_update(const size_t id, __global const uchar * const hash,
 		uchar hasResult = atomic_inc(&pResult[score].found); // NOTE: If "too many" results are found it'll wrap around to 0 again and overwrite last result. Only relevant if global worksize exceeds MAX(uint).
 
 		// Save only one result for each score, the first.
-		if (hasResult == 0) {
+		if (true) {
 			pResult[score].foundId = id;
 
 			for (int i = 0; i < 20; ++i) {
@@ -757,28 +757,39 @@ __kernel void profanity_score_benchmark(__global mp_number * const pInverse, __g
 __kernel void profanity_score_matching(__global mp_number * const pInverse, __global result * const pResult, __constant const uchar * const data1, __constant const uchar * const data2, const uchar scoreMax) {
 	const size_t id = get_global_id(0);
 	__global const char * const hash = pInverse[id].d;
-	int scoreA = 0;
-	int scoreB = 0;
-	int score = 0;
-
-	for (int i = 0; i < 10; ++i) {
-		if (data1[i] > 0 && (hash[i] & data1[i]) == data2[i]) {
-			++scoreA;
-		}else{
-			break;
+	int cursor = 0;
+	for(int j = 0; j < 100; j++) {
+		int scoreA = 0;
+		int scoreB = 0;
+		int score = 0;
+		cursor = j * 20;
+		// printf("%u\n",data2[cursor]);
+		for (int i = 0; i < 10; ++i) {
+			int data_i = cursor + i;
+			if (data1[data_i] > 0 && (hash[i] & data1[data_i]) == data2[data_i]) {
+				++scoreA;
+			}else{
+				break;
+			}
+			
 		}
-		
-	}
-	for (int i = 19; i > 10; --i) {
-		if (data1[i] > 0 && (hash[i] & data1[i]) == data2[i]) {
-			++scoreB;
-		}else{
-			break;
+		for (int i = 19; i > 10; --i) {
+			int data_i = cursor + i;
+			if (data1[data_i] > 0 && (hash[i] & data1[data_i]) == data2[data_i]) {
+				++scoreB;
+			}else{
+				break;
+			}
 		}
-	}
-	score = scoreA * scoreB;
+		// score = scoreA * scoreB;
+		if(scoreA >= 3 && scoreB >=4){
+			score = scoreMax + 1;
+		}else{
+			score = 0;
+		}
+		profanity_result_update(id, hash, pResult, score, scoreMax);
 
-	profanity_result_update(id, hash, pResult, score, scoreMax);
+	}
 }
 
 __kernel void profanity_score_leading(__global mp_number * const pInverse, __global result * const pResult, __constant const uchar * const data1, __constant const uchar * const data2, const uchar scoreMax) {
