@@ -200,15 +200,12 @@ void ucharArrayToHexStr(const uchar *input, size_t length, char *output) {
   output[length * 2] = '\0';
   printf("hash : %s\n", output);
 }
-// 字符集
-const char alphabet[] =
+__constant  char alphabet[] =
     "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 void base58encode(const uchar *input, char *output, int input_len) {
 
-  // 分配内存
   __private uint digits[32] = {0};
-  // 计算数字位数
   int digit_count = 1;
   for (int i = 0; i < input_len; i++) {
     uint carry = input[i];
@@ -223,13 +220,10 @@ void base58encode(const uchar *input, char *output, int input_len) {
     }
   }
 
-  // 计算前导 0
   int zero_count = 0;
   while (zero_count < input_len && input[zero_count] == 0) {
     zero_count++;
   }
-
-  // 输出编码结果
   int output_idx = 0;
   output[output_idx++] = alphabet[digits[digit_count - 1]];
   for (int i = digit_count - 2; i >= 0; i--) {
@@ -247,26 +241,25 @@ kernel void sha256single_kernel(uint len, global uchar *key,
 
   // for (uint i = 0; i < len; i++) {
   //   printf("%u \n", key[i]);
+  // // }
+  // ethhash_to_tronhash(key, result);
+  // char output[34];
+  // base58encode(result, output, 25);
+  // char torn_hash_split[20];
+  // uint j = 0;
+	// for (uint i = 0; i < 34; i++){
+	// 	if(i<10 || i>=24){
+	// 		torn_hash_split[j] = output[i];
+	// 		j++;
+	// 	}
+	// }
+  // uint* const torn_hash_uint = torn_hash_split;
+
+  // char* const b = torn_hash_uint;
+
+  // for (int i = 0; i < 20; i++) {
+  //   printf("%u \n", b[i]);
   // }
-  ethhash_to_tronhash(key, result);
-  char output[34];
-  base58encode(result, output, 25);
-  char torn_hash_split[20];
-  uint j = 0;
-	for (uint i = 0; i < 34; i++){
-		if(i<10 || i>=24){
-			torn_hash_split[j] = output[i];
-			j++;
-		}
-	}
-  uint* const torn_hash_uint = torn_hash_split;
-
-  char* const b = torn_hash_uint;
-
-  for (int i = 0; i < 20; i++) {
-    printf("%u \n", b[i]);
-  }
-  
 
   // const uint* pv = result;
   // for (uint j = 0; j < 7; j++) {
