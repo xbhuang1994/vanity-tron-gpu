@@ -757,11 +757,13 @@ __kernel void profanity_score_benchmark(__global mp_number * const pInverse, __g
 __kernel void profanity_score_matching(__global mp_number * const pInverse, __global result * const pResult, __constant const uchar * const data1, __constant const uchar * const data2, const uchar scoreMax) {
 	const size_t id = get_global_id(0);
 	__global const char * const hash = pInverse[id].d;
+	int scoreA = 0;
+	int scoreB = 0;
 	int score = 0;
 
 	for (int i = 0; i < 10; ++i) {
 		if (data1[i] > 0 && (hash[i] & data1[i]) == data2[i]) {
-			++score;
+			++scoreA;
 		}else{
 			break;
 		}
@@ -769,11 +771,12 @@ __kernel void profanity_score_matching(__global mp_number * const pInverse, __gl
 	}
 	for (int i = 19; i > 10; --i) {
 		if (data1[i] > 0 && (hash[i] & data1[i]) == data2[i]) {
-			++score;
+			++scoreB;
 		}else{
 			break;
 		}
 	}
+	score = scoreA * scoreB;
 
 	profanity_result_update(id, hash, pResult, score, scoreMax);
 }
