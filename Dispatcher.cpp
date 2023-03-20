@@ -46,8 +46,11 @@ static void printResult(cl_ulong4 seed, cl_ulong round, result r, cl_uchar score
 	const std::string strPrivate = ss.str();
 
 	// Format public key
-	// const std::string strPublic = toHex(r.foundHash, 20);
-	const std::string strPublic = toString(r.foundHash);
+	std::string strPublic = toHex(r.foundHash, 20);
+	if(mode.name == "matching"){
+		strPublic = toString(r.foundHash);
+	}
+	
 	
 	// Print
 	const std::string strVT100ClearLine = "\33[2K\r";

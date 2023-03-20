@@ -652,27 +652,6 @@ __kernel void profanity_iterate(__global mp_number * const pDeltaX, __global mp_
 	h.d[16] ^= 0x01; // length 64
 
 	sha3_keccakf(&h);
-	uint hash0[5] = {h.d[3],h.d[4],h.d[5],h.d[6],h.d[7]};
-	uchar *const hash0_uchar = hash0;
-	uchar torn_hash[25];
-	ethhash_to_tronhash(hash0_uchar, torn_hash);
-	char torn_hash_address[34];
- 	base58encode(torn_hash, torn_hash_address, 25);
-	char torn_hash_split[20];
-	uint j = 0;
-	for (uint i = 0; i < 34; i++){
-		if(i<10 || i>=24){
-			torn_hash_split[j] = torn_hash_address[i];
-			j++;
-		}
-	}
-	uint *const torn_hash_uint = torn_hash_split;
-	
-	pInverse[id].d[0] = torn_hash_uint[0];
-	pInverse[id].d[1] = torn_hash_uint[1];
-	pInverse[id].d[2] = torn_hash_uint[2];
-	pInverse[id].d[3] = torn_hash_uint[3];
-	pInverse[id].d[4] = torn_hash_uint[4];
 	// pInverse[id].d[5] = torn_hash_uint[5];
 	// pInverse[id].d[6] = torn_hash_uint[6];
 	// pInverse[id].d[7] = torn_hash_uint[7];
@@ -698,11 +677,11 @@ __kernel void profanity_iterate(__global mp_number * const pDeltaX, __global mp_
 	// 	}
 
 	// Save public address hash in pInverse, only used as interim storage until next cycle
-	// pInverse[id].d[0] = h.d[3];
-	// pInverse[id].d[1] = h.d[4];
-	// pInverse[id].d[2] = h.d[5];
-	// pInverse[id].d[3] = h.d[6];
-	// pInverse[id].d[4] = h.d[7];
+	pInverse[id].d[0] = h.d[3];
+	pInverse[id].d[1] = h.d[4];
+	pInverse[id].d[2] = h.d[5];
+	pInverse[id].d[3] = h.d[6];
+	pInverse[id].d[4] = h.d[7];
 }
 
 void profanity_result_update(const size_t id, __global const uchar * const hash, __global result * const pResult, const uchar score, const uchar scoreMax) {
@@ -748,7 +727,7 @@ __kernel void profanity_transform_contract(__global mp_number * const pInverse) 
 
 __kernel void profanity_score_benchmark(__global mp_number * const pInverse, __global result * const pResult, __constant const uchar * const data1, __constant const uchar * const data2, const uchar scoreMax) {
 	const size_t id = get_global_id(0);
-	__global const uchar * const hash = pInverse[id].d;
+	__global uchar * hash = pInverse[id].d;
 	int score = 0;
 
 	profanity_result_update(id, hash, pResult, score, scoreMax);
@@ -756,7 +735,20 @@ __kernel void profanity_score_benchmark(__global mp_number * const pInverse, __g
 
 __kernel void profanity_score_matching(__global mp_number * const pInverse, __global result * const pResult, __constant const uchar * const data1, __constant const uchar * const data2, const uchar scoreMax) {
 	const size_t id = get_global_id(0);
-	__global const char * const hash = pInverse[id].d;
+	__global char * hash = pInverse[id].d;
+	char hash1[20];
+	uchar *const hash0_uchar = hash;
+	uchar torn_hash[25];
+	ethhash_to_tronhash(hash0_uchar, torn_hash);
+	char torn_hash_address[34];
+ 	base58encode(torn_hash, torn_hash_address, 25);
+	uint j = 0;
+	for (uint i = 0; i < 34; i++){
+		if(i<10 || i>=24){
+			hash[j] = torn_hash_address[i];
+			j++;
+		}
+	}
 	int cursor = 0;
 	for(int j = 0; j < 100; j++) {
 		int scoreA = 0;
