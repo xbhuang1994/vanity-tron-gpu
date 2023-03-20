@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  opencl-builder:
+    build: .
+    volumes:
+      - .:/src
+    command: sh -c "make clean && make"

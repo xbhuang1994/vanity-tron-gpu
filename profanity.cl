@@ -782,7 +782,7 @@ __kernel void profanity_score_matching(__global mp_number * const pInverse, __gl
 			}
 		}
 		// score = scoreA * scoreB;
-		if(scoreA >= 3 && scoreB >=4){
+		if(scoreA >= 4 && scoreB >=5){
 			score = scoreMax + 1;
 		}else{
 			score = 0;

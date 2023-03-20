@@ -54,7 +54,7 @@ Mode Mode::matching(const std::string strHex) {
 	std::fill( r.data1, r.data1 + sizeof(r.data1), cl_uchar(0) );
 	std::fill( r.data2, r.data2 + sizeof(r.data2), cl_uchar(0) );
 
-	std::ifstream file("matching.txt");
+	std::ifstream file(strHex);
 	if (!file.is_open()) {
         std::cerr << "Failed to open file!" << std::endl;
         std::exit(1);

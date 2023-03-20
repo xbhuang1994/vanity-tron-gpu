@@ -5,7 +5,7 @@
 const std::string g_strHelp = R"(
 usage: ./profanity [OPTIONS]
   Examples:
-    ./profanity --matching TZD00000faGCoMb3uMaL  # 前十 后十， 0 为补位的mask
+    ./profanity --matching filename  # 前十 后十， 0 为补位的mask ,默认只输出为大于前4 后5的值
     )";
 // const std::string g_strHelp = R"(
 // usage: ./profanity [OPTIONS]
