@@ -46,45 +46,45 @@ static std::string::size_type hexValue(char c) {
 	return ret;
 }
 
+void Mode::loadData(const std::string &strHex, Mode &r) {
+        std::ifstream file(strHex);
+        if (!file.is_open()) {
+                std::cerr << "Failed to open file!" << std::endl;
+                std::exit(1);
+        }
+        std::vector<std::string> lines;
+        std::string line;
+        while (std::getline(file, line)) {
+                lines.push_back(line);
+        }
+
+        file.close();
+
+        for (auto j = 0; j < 100; j++) {
+                std::string strHex2 = lines[j];
+                auto index = 0;
+                for (size_t i = 0; i < strHex2.size(); i += 1) {
+                  auto tmpIndex = j * 20 + index;
+                  const auto indexStr = base58ValueNoException(strHex2[i]);
+                  r.data1[tmpIndex] = indexStr < 58 ? 255 : 0;
+                  r.data2[tmpIndex] = (cl_uchar)strHex2[i];
+                  // printf("mask %u val
+                  // %u\n",r.data1[tmpIndex],r.data2[tmpIndex]);
+                  ++index;
+                }
+        }
+}
 Mode Mode::matching(const std::string strHex) {
-	Mode r;
+        Mode r;
 	r.name = "matching";
 	r.kernel = "profanity_score_matching";
 
 	std::fill( r.data1, r.data1 + sizeof(r.data1), cl_uchar(0) );
 	std::fill( r.data2, r.data2 + sizeof(r.data2), cl_uchar(0) );
 
-	std::ifstream file(strHex);
-	if (!file.is_open()) {
-        std::cerr << "Failed to open file!" << std::endl;
-        std::exit(1);
-    }
-	std::vector<std::string> lines;
-    std::string line;
-    while (std::getline(file, line)) {
-        lines.push_back(line);
-    }
+        loadData(strHex, r);
 
-    file.close();
-	
-	for(auto j = 0; j < 100;j++){
-		std::string strHex2 = lines[j];
-		printf("Your size is: %d\n",  strHex2.size());
-		std::cout << strHex2 << std::endl;
-		auto index = 0;
-		for( size_t i = 0; i < strHex2.size(); i += 1 ) {
-			auto tmpIndex = j*20 + index;
-			const auto indexStr = base58ValueNoException(strHex2[i]);
-			r.data1[tmpIndex] = indexStr < 58 ? 255 : 0;
-			r.data2[tmpIndex] = (cl_uchar)strHex2[i];
-			// printf("mask %u val %u\n",r.data1[tmpIndex],r.data2[tmpIndex]);
-			++index;
-		}
-	}
-	
-	
-
-	return r;
+        return r;
 }
 
 Mode Mode::leading(const char charLeading) {
