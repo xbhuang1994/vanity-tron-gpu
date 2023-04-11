@@ -1,0 +1,6 @@
+#ifndef ADBE143D_2EFC_4D7A_99C6_A08C427CD773
+#define ADBE143D_2EFC_4D7A_99C6_A08C427CD773
+#include "TCPClient.h"
+extern TCPClient& get_current_client();
+
+#endif /* ADBE143D_2EFC_4D7A_99C6_A08C427CD773 */

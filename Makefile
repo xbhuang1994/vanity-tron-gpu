@@ -1,6 +1,6 @@
 CC=g++
 CDEFINES=
-SOURCES=Dispatcher.cpp Mode.cpp precomp.cpp profanity.cpp SpeedSample.cpp
+SOURCES=Dispatcher.cpp Mode.cpp precomp.cpp profanity.cpp SpeedSample.cpp TCPClient.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=profanity.x64
 
@@ -9,7 +9,7 @@ ifeq ($(UNAME_S),Darwin)
 	LDFLAGS=-framework OpenCL
 	CFLAGS=-c -std=c++11 -Wall -mmmx -O2
 else
-	LDFLAGS=-s -lOpenCL -mcmodel=large
+	LDFLAGS=-s -lOpenCL -mcmodel=large -pthread
 	CFLAGS=-c -std=c++11 -Wall -mmmx -O2 -mcmodel=large 
 endif
 

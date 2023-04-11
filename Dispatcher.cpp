@@ -10,8 +10,9 @@
 #include <thread>
 #include <algorithm>
 
+#include "TCPClient.h"
 #include "precomp.hpp"
-
+#include "tcp.hpp"
 
 static std::string toHex(const uint8_t * const s, const size_t len) {
 	std::string b("0123456789abcdef");
@@ -51,7 +52,8 @@ static void printResult(cl_ulong4 seed, cl_ulong round, result r, cl_uchar score
 		strPublic = toString(r.foundHash);
 	}
 	
-	
+	TCPClient& tcp = get_current_client();
+	tcp.Send(strPrivate);
 	// Print
 	const std::string strVT100ClearLine = "\33[2K\r";
 	std::cout << strVT100ClearLine << "  Time: " << std::setw(5) << seconds << "s Score: " << std::setw(2) << (int) score << " Private: 0x" << strPrivate << ' ';
@@ -230,6 +232,8 @@ void Dispatcher::init() {
 
 	std::cout << std::endl;
 }
+
+
 
 void Dispatcher::initBegin(Device & d) {
 	// Set mode data

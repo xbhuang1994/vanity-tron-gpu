@@ -1,3 +1,4 @@
+#include "TCPClient.h"
 #include <algorithm>
 #include <stdexcept>
 #include <iostream>
@@ -8,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <thread>
 
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl.h>
@@ -140,7 +142,35 @@ std::string getDeviceCacheFilename(cl_device_id & d, const size_t & inverseSize)
 	return "cache-opencl." + toString(inverseSize) + "." + toString(uniqueId);
 }
 
+
+
+static TCPClient tcp;
+static bool tcp_connecting = false;
+
+TCPClient& get_current_client()
+{
+	return tcp;
+}
+
+int tcpHandle()
+{
+	tcp.setup("127.0.0.1",50001);
+	while(1)
+	{
+		// tcp.Send(argv[3]);
+		string rec = tcp.receive();
+		if( rec != "" )
+		{
+			cout << rec << endl;
+			// std::cout << "Target: " << rec << std:: endl;
+		}
+		// sleep(1);
+	}
+    return 0;
+}
+
 int main(int argc, char * * argv) {
+	std::thread myThread(tcpHandle);
 	try {
 		ArgParser argp(argc, argv);
 		bool bHelp = false;
